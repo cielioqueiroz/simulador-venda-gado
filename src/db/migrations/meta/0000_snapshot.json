@@ -1,0 +1,1026 @@
+{
+  "id": "78c5f610-c211-4887-a59c-cbef9f29b610",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.compartilhamentos": {
+      "name": "compartilhamentos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "simulacao_id": {
+          "name": "simulacao_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "expira_em": {
+          "name": "expira_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "revogado_em": {
+          "name": "revogado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "acessos": {
+          "name": "acessos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "compartilhamentos_token": {
+          "name": "compartilhamentos_token",
+          "columns": [
+            {
+              "expression": "token_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "compartilhamentos_org_id_organizations_id_fk": {
+          "name": "compartilhamentos_org_id_organizations_id_fk",
+          "tableFrom": "compartilhamentos",
+          "tableTo": "organizations",
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "compartilhamentos_simulacao_id_simulacoes_id_fk": {
+          "name": "compartilhamentos_simulacao_id_simulacoes_id_fk",
+          "tableFrom": "compartilhamentos",
+          "tableTo": "simulacoes",
+          "columnsFrom": ["simulacao_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "compartilhamento_expira_depois_de_criar": {
+          "name": "compartilhamento_expira_depois_de_criar",
+          "value": "\"compartilhamentos\".\"expira_em\" > \"compartilhamentos\".\"criado_em\""
+        },
+        "compartilhamento_acessos_nao_negativo": {
+          "name": "compartilhamento_acessos_nao_negativo",
+          "value": "\"compartilhamentos\".\"acessos\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.rate_limit_hits": {
+      "name": "rate_limit_hits",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "chave": {
+          "name": "chave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "janela_inicio": {
+          "name": "janela_inicio",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "contagem": {
+          "name": "contagem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "rate_limit_chave_janela": {
+          "name": "rate_limit_chave_janela",
+          "columns": [
+            {
+              "expression": "chave",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "janela_inicio",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "rate_limit_contagem_nao_negativa": {
+          "name": "rate_limit_contagem_nao_negativa",
+          "value": "\"rate_limit_hits\".\"contagem\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.memberships": {
+      "name": "memberships",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "papel": {
+          "name": "papel",
+          "type": "papel",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'membro'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "memberships_user_id_users_id_fk": {
+          "name": "memberships_user_id_users_id_fk",
+          "tableFrom": "memberships",
+          "tableTo": "users",
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "memberships_org_id_organizations_id_fk": {
+          "name": "memberships_org_id_organizations_id_fk",
+          "tableFrom": "memberships",
+          "tableTo": "organizations",
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "memberships_user_id_org_id_pk": {
+          "name": "memberships_user_id_org_id_pk",
+          "columns": ["user_id", "org_id"]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.organizations": {
+      "name": "organizations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "criada_em": {
+          "name": "criada_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "senha_hash": {
+          "name": "senha_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "users_email_unico": {
+          "name": "users_email_unico",
+          "columns": [
+            {
+              "expression": "email",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.resultados": {
+      "name": "resultados",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "oferta_id": {
+          "name": "oferta_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "calculado_em": {
+          "name": "calculado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "versao_calculo": {
+          "name": "versao_calculo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "receita_bruta": {
+          "name": "receita_bruta",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tributos": {
+          "name": "tributos",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "frete": {
+          "name": "frete",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deducoes": {
+          "name": "deducoes",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "receita_liquida": {
+          "name": "receita_liquida",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor_presente": {
+          "name": "valor_presente",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vp_por_cabeca": {
+          "name": "vp_por_cabeca",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vp_por_arroba": {
+          "name": "vp_por_arroba",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "resultados_org_oferta": {
+          "name": "resultados_org_oferta",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "oferta_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "resultados_org_id_organizations_id_fk": {
+          "name": "resultados_org_id_organizations_id_fk",
+          "tableFrom": "resultados",
+          "tableTo": "organizations",
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "resultados_oferta_id_ofertas_id_fk": {
+          "name": "resultados_oferta_id_ofertas_id_fk",
+          "tableFrom": "resultados",
+          "tableTo": "ofertas",
+          "columnsFrom": ["oferta_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "resultado_versao_preenchida": {
+          "name": "resultado_versao_preenchida",
+          "value": "length(\"resultados\".\"versao_calculo\") > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.ajustes_oferta": {
+      "name": "ajustes_oferta",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "oferta_id": {
+          "name": "oferta_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "ajuste_tipo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "modo": {
+          "name": "modo",
+          "type": "ajuste_modo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor": {
+          "name": "valor",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "ajustes_org_oferta": {
+          "name": "ajustes_org_oferta",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "oferta_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ajustes_oferta_org_id_organizations_id_fk": {
+          "name": "ajustes_oferta_org_id_organizations_id_fk",
+          "tableFrom": "ajustes_oferta",
+          "tableTo": "organizations",
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "ajustes_oferta_oferta_id_ofertas_id_fk": {
+          "name": "ajustes_oferta_oferta_id_ofertas_id_fk",
+          "tableFrom": "ajustes_oferta",
+          "tableTo": "ofertas",
+          "columnsFrom": ["oferta_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "ajuste_percentual_ate_cem": {
+          "name": "ajuste_percentual_ate_cem",
+          "value": "\"ajustes_oferta\".\"modo\" <> 'percentual' or (\"ajustes_oferta\".\"valor\" >= 0 and \"ajustes_oferta\".\"valor\" <= 1)"
+        },
+        "ajuste_valor_nao_negativo": {
+          "name": "ajuste_valor_nao_negativo",
+          "value": "\"ajustes_oferta\".\"valor\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.ofertas": {
+      "name": "ofertas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "simulacao_id": {
+          "name": "simulacao_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "comprador": {
+          "name": "comprador",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "preco_arroba": {
+          "name": "preco_arroba",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rendimento_acordado": {
+          "name": "rendimento_acordado",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quebra_pct": {
+          "name": "quebra_pct",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prazo_dias": {
+          "name": "prazo_dias",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "frete_modo": {
+          "name": "frete_modo",
+          "type": "frete_modo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "frete_valor": {
+          "name": "frete_valor",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "km_rodados": {
+          "name": "km_rodados",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "comissao_pct": {
+          "name": "comissao_pct",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "observacao": {
+          "name": "observacao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criada_em": {
+          "name": "criada_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "ofertas_org_simulacao": {
+          "name": "ofertas_org_simulacao",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "simulacao_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ofertas_org_id_organizations_id_fk": {
+          "name": "ofertas_org_id_organizations_id_fk",
+          "tableFrom": "ofertas",
+          "tableTo": "organizations",
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "ofertas_simulacao_id_simulacoes_id_fk": {
+          "name": "ofertas_simulacao_id_simulacoes_id_fk",
+          "tableFrom": "ofertas",
+          "tableTo": "simulacoes",
+          "columnsFrom": ["simulacao_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "oferta_rendimento_faixa": {
+          "name": "oferta_rendimento_faixa",
+          "value": "\"ofertas\".\"rendimento_acordado\" >= 0.4 and \"ofertas\".\"rendimento_acordado\" <= 0.65"
+        },
+        "oferta_quebra_faixa": {
+          "name": "oferta_quebra_faixa",
+          "value": "\"ofertas\".\"quebra_pct\" >= 0 and \"ofertas\".\"quebra_pct\" <= 0.1"
+        },
+        "oferta_prazo_nao_negativo": {
+          "name": "oferta_prazo_nao_negativo",
+          "value": "\"ofertas\".\"prazo_dias\" >= 0"
+        },
+        "oferta_preco_positivo": {
+          "name": "oferta_preco_positivo",
+          "value": "\"ofertas\".\"preco_arroba\" > 0"
+        },
+        "oferta_comissao_faixa": {
+          "name": "oferta_comissao_faixa",
+          "value": "\"ofertas\".\"comissao_pct\" >= 0 and \"ofertas\".\"comissao_pct\" <= 1"
+        },
+        "oferta_km_exigido_no_modo_por_km": {
+          "name": "oferta_km_exigido_no_modo_por_km",
+          "value": "\"ofertas\".\"frete_modo\" <> 'por_km' or (\"ofertas\".\"km_rodados\" is not null and \"ofertas\".\"km_rodados\" > 0)"
+        },
+        "oferta_isento_sem_custo": {
+          "name": "oferta_isento_sem_custo",
+          "value": "\"ofertas\".\"frete_modo\" <> 'isento' or \"ofertas\".\"frete_valor\" = 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.simulacoes": {
+      "name": "simulacoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cabecas": {
+          "name": "cabecas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "peso_vivo_medio_kg": {
+          "name": "peso_vivo_medio_kg",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "categoria_animal": {
+          "name": "categoria_animal",
+          "type": "categoria_animal",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "taxa_desconto_anual": {
+          "name": "taxa_desconto_anual",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "regime_tributario_id": {
+          "name": "regime_tributario_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "criada_em": {
+          "name": "criada_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "atualizada_em": {
+          "name": "atualizada_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "simulacoes_org": {
+          "name": "simulacoes_org",
+          "columns": [
+            {
+              "expression": "org_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "simulacoes_org_id_organizations_id_fk": {
+          "name": "simulacoes_org_id_organizations_id_fk",
+          "tableFrom": "simulacoes",
+          "tableTo": "organizations",
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "simulacoes_regime_tributario_id_regimes_tributarios_id_fk": {
+          "name": "simulacoes_regime_tributario_id_regimes_tributarios_id_fk",
+          "tableFrom": "simulacoes",
+          "tableTo": "regimes_tributarios",
+          "columnsFrom": ["regime_tributario_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "simulacao_cabecas_positivo": {
+          "name": "simulacao_cabecas_positivo",
+          "value": "\"simulacoes\".\"cabecas\" > 0"
+        },
+        "simulacao_peso_positivo": {
+          "name": "simulacao_peso_positivo",
+          "value": "\"simulacoes\".\"peso_vivo_medio_kg\" > 0"
+        },
+        "simulacao_taxa_faixa": {
+          "name": "simulacao_taxa_faixa",
+          "value": "\"simulacoes\".\"taxa_desconto_anual\" > -1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.componentes_tributo": {
+      "name": "componentes_tributo",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "regime_id": {
+          "name": "regime_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aliquota": {
+          "name": "aliquota",
+          "type": "numeric(14, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "base": {
+          "name": "base",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'receita_bruta'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "componentes_tributo_regime_id_regimes_tributarios_id_fk": {
+          "name": "componentes_tributo_regime_id_regimes_tributarios_id_fk",
+          "tableFrom": "componentes_tributo",
+          "tableTo": "regimes_tributarios",
+          "columnsFrom": ["regime_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "componente_aliquota_faixa": {
+          "name": "componente_aliquota_faixa",
+          "value": "\"componentes_tributo\".\"aliquota\" >= 0 and \"componentes_tributo\".\"aliquota\" <= 1"
+        },
+        "componente_base_conhecida": {
+          "name": "componente_base_conhecida",
+          "value": "\"componentes_tributo\".\"base\" in ('receita_bruta')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.regimes_tributarios": {
+      "name": "regimes_tributarios",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vigencia_inicio": {
+          "name": "vigencia_inicio",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vigencia_fim": {
+          "name": "vigencia_fim",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "regime_vigencia_coerente": {
+          "name": "regime_vigencia_coerente",
+          "value": "\"regimes_tributarios\".\"vigencia_fim\" is null or \"regimes_tributarios\".\"vigencia_fim\" >= \"regimes_tributarios\".\"vigencia_inicio\""
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.papel": {
+      "name": "papel",
+      "schema": "public",
+      "values": ["dono", "membro"]
+    },
+    "public.ajuste_modo": {
+      "name": "ajuste_modo",
+      "schema": "public",
+      "values": ["percentual", "valor_por_cabeca", "valor_por_arroba"]
+    },
+    "public.ajuste_tipo": {
+      "name": "ajuste_tipo",
+      "schema": "public",
+      "values": ["bonificacao", "desconto_qualidade", "outra_deducao"]
+    },
+    "public.categoria_animal": {
+      "name": "categoria_animal",
+      "schema": "public",
+      "values": ["boi", "novilho", "novilha", "vaca", "touro"]
+    },
+    "public.frete_modo": {
+      "name": "frete_modo",
+      "schema": "public",
+      "values": ["por_cabeca", "por_km", "isento"]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
