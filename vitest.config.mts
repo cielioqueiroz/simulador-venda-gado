@@ -10,9 +10,12 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts"],
+    exclude: ["node_modules/**", "tests/ajuda/**"],
     coverage: {
       provider: "v8",
       include: ["src/features/**/domain/**", "src/lib/**"],
+      // Esquema declarativo e config nao tem ramo para cobrir.
+      exclude: ["src/db/**", "src/lib/env.ts"],
       thresholds: {
         lines: 100,
         functions: 100,
