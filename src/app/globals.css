@@ -1,26 +1,129 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/*
+  Instrumento de pesagem. A referencia vive na tipografia e nas marcas de
+  graduacao, nunca em textura de metal ou sombra fingindo relevo.
+  Ver docs/superpowers/specs/2026-08-19-direcao-visual.md
+*/
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-aco: #e4e8e3;
+  --color-papel: #fafbf9;
+  --color-tinta: #0e1a14;
+  --color-brinco: #c9a227;
+  --color-sangria: #a03e2f;
+  --color-agua: #2e6b6b;
+
+  --color-tinta-suave: #4a5a51;
+  --color-linha: #c8d0c9;
+
+  --font-sinal: var(--fonte-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-numero: var(--fonte-mono), ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  color-scheme: light;
+}
+
+html {
+  background-color: var(--color-aco);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-aco);
+  color: var(--color-tinta);
+  font-family: var(--font-sinal);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+  Todo numero passa por aqui. Tabulares sao obrigatorios: alinhamento de digito
+  e o que torna a comparacao visual possivel.
+*/
+.numero {
+  font-family: var(--font-numero);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.01em;
+}
+
+/* Sinalizacao de equipamento: grotesca expandida, so acima de 20px. */
+.sinal {
+  font-family: var(--font-sinal);
+  font-stretch: 118%;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.rotulo {
+  font-family: var(--font-sinal);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-tinta-suave);
+}
+
+/* Marcas de graduacao: o motivo grafico do conceito, desenhado em CSS. */
+.graduacao {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--color-linha) 0,
+    var(--color-linha) 1px,
+    transparent 1px,
+    transparent 8px
+  );
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-tinta);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* A troca de posicao no ranking e o momento de alto impacto da tela. */
+.coluna-oferta {
+  transition: transform 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/*
+  O !important aqui e deliberado: a preferencia de movimento reduzido do sistema
+  precisa vencer utilitario e estilo inline, sem excecao. Enfraquecer isso para
+  agradar o linter trocaria acessibilidade por limpeza, e o linter perde.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: reset de acessibilidade precisa vencer tudo */
+    animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: reset de acessibilidade precisa vencer tudo */
+    animation-iteration-count: 1 !important;
+    /* biome-ignore lint/complexity/noImportantStyles: reset de acessibilidade precisa vencer tudo */
+    transition-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: reset de acessibilidade precisa vencer tudo */
+    scroll-behavior: auto !important;
+  }
+}
+
+/*
+  Item de grid tem min-width: auto por padrao, entao ele se recusa a encolher
+  abaixo do proprio conteudo. A tabela e o SVG da cascata tem largura minima
+  propria e rolam dentro do proprio container, mas sem isto eles empurrariam a
+  trilha inteira e a pagina ganharia rolagem horizontal em tela estreita.
+*/
+.grade-conteudo > * {
+  min-width: 0;
+}
+
+/* Trilho de rolagem horizontal da tabela em tela estreita. */
+.rolagem-comparativo {
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-linha) transparent;
+}
+
+.rolagem-comparativo > * {
+  scroll-snap-align: start;
 }

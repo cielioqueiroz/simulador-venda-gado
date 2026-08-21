@@ -15,3 +15,4 @@ test-results/
 .vercel
 .turbo
 next-env.d.ts
+tsconfig.tsbuildinfo
